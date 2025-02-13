@@ -1,14 +1,17 @@
-# docker/Dockerfile.bot
-
 FROM node:18-alpine
 WORKDIR /app
 
-# Копируем зависимости
+# Копируем package.json / package-lock.json из telegram-bot
 COPY telegram-bot/package*.json ./
+
+# Устанавливаем зависимости
 RUN npm install
 
-# Копируем код бота
+# Копируем весь код бота
 COPY telegram-bot ./
 
-EXPOSE 8080  # Если вдруг нужен порт для webhook, не всегда нужно.
+# Если у вас .env внутри telegram-bot, нужно прокинуть переменные (см. env_file в docker-compose)
+# Или добавить сами .env (не рекомендуется в публичный репо)
+
+# Запускаем
 CMD ["node", "bot.js"]

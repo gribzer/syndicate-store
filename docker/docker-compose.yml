@@ -1,14 +1,13 @@
-version: '3.7'
+version: '3.8'
+
 services:
   db:
     image: postgres:14
     container_name: syndicate-db
-    env_file:
-      - ../.env
     environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=synadmin
+      - POSTGRES_PASSWORD=yourpass
+      - POSTGRES_DB=syndicate_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: always
@@ -18,14 +17,18 @@ services:
       context: ..
       dockerfile: docker/Dockerfile.strapi
     container_name: syndicate-strapi
-    env_file:
-      - ../.env
     environment:
       - NODE_ENV=production
+      # Переменные среды для Strapi
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=syndicate_db
+      - DATABASE_USERNAME=synadmin
+      - DATABASE_PASSWORD=yourpass
+      - HOST=0.0.0.0
+      - PORT=1337
     depends_on:
       - db
-    ports:
-      - "1337:1337"  # Можно убрать, если будете проксировать только через Nginx
     restart: always
 
   nextjs:
@@ -33,25 +36,22 @@ services:
       context: ..
       dockerfile: docker/Dockerfile.nextjs
     container_name: syndicate-nextjs
-    env_file:
-      - ../.env
     environment:
       - NODE_ENV=production
+      # Если нужно, добавьте переменные окружения для Next.js
     depends_on:
       - strapi
-    ports:
-      - "3000:3000"  # Можно убрать, если будете проксировать только через Nginx
     restart: always
 
-  telegram-bot:
+  bot:
     build:
       context: ..
       dockerfile: docker/Dockerfile.bot
     container_name: syndicate-bot
-    env_file:
-      - ../.env
+    # Переменные среды для бота (телеграм-токен)
     environment:
-      - NODE_ENV=production
+      - TELEGRAM_BOT_TOKEN=7811128055:AAFvlrXpEkdfnwtPJSF2jbB8VuLyrZ0lMI0
+      # или использовать env_file: ["../telegram-bot/.env"]
     depends_on:
       - strapi
     restart: always
@@ -60,7 +60,6 @@ services:
     build:
       context: .
       dockerfile: nginx/Dockerfile.nginx
-    container_name: syndicate-nginx
     depends_on:
       - nextjs
       - strapi
@@ -68,13 +67,8 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      # Прокидываем конфиг Nginx
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
-      
-      # Если у вас есть SSL на хостовой машине, см. пункт о Certbot
-      # - /etc/letsencrypt/live/syndicate-store.ru/fullchain.pem:/etc/ssl/certs/fullchain.pem:ro
-      # - /etc/letsencrypt/live/syndicate-store.ru/privkey.pem:/etc/ssl/certs/privkey.pem:ro
-
+      - /etc/letsencrypt/live/syndicate-store.ru/fullchain.pem:/etc/ssl/certs/fullchain.pem:ro
+      - /etc/letsencrypt/live/syndicate-store.ru/privkey.pem:/etc/ssl/certs/privkey.pem:ro
     restart: always
 
 volumes:

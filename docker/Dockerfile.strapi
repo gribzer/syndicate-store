@@ -1,27 +1,17 @@
 # docker/Dockerfile.strapi
 
-# Базовый образ Node.js
 FROM node:18-alpine
-
-# Создаём рабочую директорию
 WORKDIR /app
 
-# Копируем package.json и yarn.lock (или package-lock.json) из Strapi-проекта
+# Копируем package.json и lock-файл
 COPY backend/strapi/package*.json ./
-# Если вы используете Yarn:
-# COPY backend/strapi/package.json backend/strapi/yarn.lock ./
-
-# Устанавливаем зависимости
 RUN npm install
 
-# Копируем весь код Strapi
+# Копируем остальной код Strapi
 COPY backend/strapi ./
 
-# Собираем Strapi (если нужно для продакшена)
+# Собираем админку (продакшен)
 RUN npm run build
 
-# Expose порта (Strapi по умолчанию 1337)
 EXPOSE 1337
-
-# Запускаем Strapi
 CMD ["npm", "run", "start"]

@@ -1,9 +1,0 @@
-# docker/nginx/Dockerfile.nginx
-
-FROM nginx:stable-alpine
-
-# Копируем default.conf в образ
-COPY default.conf /etc/nginx/conf.d/default.conf
-
-# Если у вас SSL-сертификат не через volume, а в самом образе — 
-# можно скопировать файлы .pem сюда. Но обычно лучше делать volume.

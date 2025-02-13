@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   db:
     image: postgres:14
@@ -48,10 +46,10 @@ services:
       context: ..
       dockerfile: docker/Dockerfile.bot
     container_name: syndicate-bot
-    # Переменные среды для бота (телеграм-токен)
+    env_file:
+      - ../telegram-bot/.env
     environment:
-      - TELEGRAM_BOT_TOKEN=7811128055:AAFvlrXpEkdfnwtPJSF2jbB8VuLyrZ0lMI0
-      # или использовать env_file: ["../telegram-bot/.env"]
+      EXTRA_VAR: "someValue"
     depends_on:
       - strapi
     restart: always
@@ -59,7 +57,7 @@ services:
   nginx:
     build:
       context: .
-      dockerfile: nginx/Dockerfile.nginx
+      dockerfile: Dockerfile.nginx
     depends_on:
       - nextjs
       - strapi

@@ -1,0 +1,41 @@
+{
+    "kind": "collectionType",
+    "collectionName": "orders",
+    "info": {
+      "singularName": "order",
+      "pluralName": "orders",
+      "displayName": "Order"
+    },
+    "options": {
+      "draftAndPublish": false
+    },
+    "attributes": {
+      "status": {
+        "type": "enumeration",
+        "enum": ["pending", "paid", "canceled", "completed"],
+        "default": "pending"
+      },
+      "totalPrice": {
+        "type": "decimal",
+        "required": true
+      },
+      "currency": {
+        "type": "string",
+        "default": "USD"
+      },
+      "products": {
+        "type": "relation",
+        "relation": "oneToMany",
+        "target": "api::product.product"
+      },
+      "transactionHash": {
+        "type": "string"
+      },
+      "user": {
+        "type": "relation",
+        "relation": "oneToOne",
+        "target": "plugin::users-permissions.user"
+      }
+    }
+  }
+  

@@ -36,7 +36,7 @@ services:
     container_name: syndicate-nextjs
     environment:
       - NODE_ENV=production
-      # Если нужно, добавьте переменные окружения для Next.js
+    command: npm run start
     depends_on:
       - strapi
     restart: always
